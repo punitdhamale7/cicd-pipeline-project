@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cicd-app-service
+  labels:
+    app: cicd-app
+spec:
+  type: ClusterIP
+  selector:
+    app: cicd-app
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+    name: http

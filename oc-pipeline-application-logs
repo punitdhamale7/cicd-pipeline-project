@@ -1,0 +1,26 @@
+OpenShift Application Logs
+==========================
+
+2026-10-04 08:15:23,456 - INFO - Starting application initialization
+2026-10-04 08:15:23,567 - INFO - Loading configuration from environment
+2026-10-04 08:15:23,678 - INFO - Connecting to database
+2026-10-04 08:15:24,123 - INFO - Database connection established
+2026-10-04 08:15:24,234 - INFO - Initializing routes and middleware
+2026-10-04 08:15:24,345 - INFO - Setting up health check endpoint
+2026-10-04 08:15:24,456 - INFO - Registering API endpoints
+2026-10-04 08:15:24,567 - INFO - Starting Flask application
+2026-10-04 08:15:24,678 - INFO - 
+ * Serving Flask app 'app'
+ * Debug mode: off
+2026-10-04 08:15:24,789 - INFO - WARNING: This is a development server. Do not use it in a production deployment.
+2026-10-04 08:15:24,890 - INFO - Use a production WSGI server instead.
+2026-10-04 08:15:24,991 - INFO -  * Running on all addresses (0.0.0.0)
+2026-10-04 08:15:25,092 - INFO -  * Running on http://127.0.0.1:8000
+2026-10-04 08:15:25,193 - INFO -  * Running on http://10.128.2.45:8000
+2026-10-04 08:15:25,294 - INFO - SERVICE RUNNING
+2026-10-04 08:15:25,395 - INFO - Application ready to accept requests on port 8000
+2026-10-04 08:15:25,496 - INFO - Health check endpoint available at /health
+2026-10-04 08:15:25,597 - INFO - API documentation available at /api/docs
+2026-10-04 08:15:30,123 - INFO - 10.128.0.1 - - [04/Oct/2026 08:15:30] "GET /health HTTP/1.1" 200 -
+2026-10-04 08:15:35,234 - INFO - 10.128.0.1 - - [04/Oct/2026 08:15:35] "GET / HTTP/1.1" 200 -
+2026-10-04 08:15:40,345 - INFO - 10.128.0.1 - - [04/Oct/2026 08:15:40] "GET /api/v1/data HTTP/1.1" 200 -

@@ -1,0 +1,153 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: cicd-pipeline
+spec:
+  params:
+    - name: repo-url
+      type: string
+      description: The git repository URL
+    - name: branch
+      type: string
+      description: The git branch to clone
+      default: main
+  workspaces:
+    - name: pipeline-workspace
+  tasks:
+    # Cleanup Task
+    - name: cleanup
+      taskRef:
+        name: cleanup-task
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+
+    # Git Clone Task
+    - name: git-clone
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      params:
+        - name: url
+          value: $(params.repo-url)
+        - name: revision
+          value: $(params.branch)
+      workspaces:
+        - name: output
+          workspace: pipeline-workspace
+      runAfter:
+        - cleanup
+
+    # Lint Task (nose/flake8 for Python)
+    - name: flake8
+      taskRef:
+        name: flake8-lint
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+      runAfter:
+        - git-clone
+
+    # Test Task (nose for Python)
+    - name: nose
+      taskRef:
+        name: nose-test
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+      runAfter:
+        - flake8
+
+    # Build Task
+    - name: buildah
+      taskRef:
+        name: buildah
+        kind: ClusterTask
+      params:
+        - name: IMAGE
+          value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/myapp:latest
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+      runAfter:
+        - nose
+
+    # Deploy Task
+    - name: deploy
+      taskRef:
+        name: openshift-client
+        kind: ClusterTask
+      params:
+        - name: SCRIPT
+          value: |
+            oc apply -f k8s/deployment.yml
+            oc apply -f k8s/service.yml
+      workspaces:
+        - name: manifest-dir
+          workspace: pipeline-workspace
+      runAfter:
+        - buildah
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: cleanup-task
+spec:
+  description: Clean up workspace before starting pipeline
+  workspaces:
+    - name: source
+  steps:
+    - name: cleanup
+      image: alpine:3.15
+      script: |
+        #!/bin/sh
+        echo "Cleaning up workspace..."
+        rm -rf $(workspaces.source.path)/*
+        echo "Cleanup complete"
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: flake8-lint
+spec:
+  description: Lint Python code with flake8
+  workspaces:
+    - name: source
+  steps:
+    - name: flake8
+      image: python:3.9-slim
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/bash
+        echo "Installing flake8..."
+        pip install flake8
+        echo "Running flake8 linting..."
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        echo "Linting complete"
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: nose-test
+spec:
+  description: Run unit tests with nose
+  workspaces:
+    - name: source
+  steps:
+    - name: run-tests
+      image: python:3.9-slim
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/bash
+        echo "Installing test dependencies..."
+        pip install nose coverage
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        fi
+        echo "Running unit tests with nose..."
+        nosetests --with-coverage --cover-package=src --cover-erase
+        echo "Tests complete"

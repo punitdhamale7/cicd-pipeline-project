@@ -1,0 +1,65 @@
+GitHub Actions Workflow Execution Output
+==========================================
+
+Run actions/checkout@v3
+Syncing repository: username/cicd-pipeline-project
+Getting Git version info
+Initializing the repository
+Disabling automatic garbage collection
+Setting up auth
+Fetching the repository
+Determining the checkout info
+Checking out the ref
+/usr/bin/git log -1 --format='%H'
+'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0'
+
+Run actions/setup-python@v4
+Successfully set up python version 3.9
+Python version: 3.9.18
+
+Run pip install flake8
+Collecting flake8
+  Downloading flake8-6.1.0-py2.py3-none-any.whl (58 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 58.8/58.8 kB 2.5 MB/s eta 0:00:00
+Successfully installed flake8-6.1.0 mccabe-0.7.0 pycodestyle-2.11.0 pyflakes-3.1.0
+
+Run Lint with flake8
+./src/app.py:1:1: F401 'os' imported but unused
+./src/app.py:45:80: E501 line too long (85 > 79 characters)
+2     E501 line too long
+1     F401 'os' imported but unused
+✓ No critical errors found
+
+Run pip install nose coverage
+Collecting nose
+  Downloading nose-1.3.7-py3-none-any.whl (154 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 154.7/154.7 kB 8.2 MB/s eta 0:00:00
+Collecting coverage
+  Downloading coverage-7.3.2-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (226 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 226.5/226.5 kB 12.4 MB/s eta 0:00:00
+Successfully installed coverage-7.3.2 nose-1.3.7
+
+Run unit tests with nose
+test_app.test_home ... ok
+test_app.test_health ... ok
+test_app.test_api_endpoint ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.012s
+
+OK
+Name                 Stmts   Miss  Cover
+----------------------------------------
+src/__init__.py          0      0   100%
+src/app.py              45      2    96%
+----------------------------------------
+TOTAL                   45      2    96%
+
+Run actions/upload-artifact@v3
+With the provided path, there will be 1 file uploaded
+Artifact name: coverage-report
+Root directory: /home/runner/work/cicd-pipeline-project/cicd-pipeline-project
+Artifact size: 12.5 KB
+
+✓ Workflow completed successfully
+All checks passed
